@@ -13,38 +13,53 @@ import UIKit
 
 final class ViewController: UIViewController {
     
-    private var collectionView: UICollectionView!
+    private lazy var collectionView: UICollectionView = .init(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+    private lazy var dataProvider: ImageDataProvider = PhotoImageDataProvider()
+    private var targetSize: CGSize = .init(width: UIScreen.main.bounds.width / 3, height: UIScreen.main.bounds.width / 3)
+    private var loadingTask: Task<Void, Never>?
     
-    var assets: [PHAsset] = [] {
-        didSet {
-            collectionView.reloadData()
-        }
-    }
-
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
         view.addSubview(collectionView)
         collectionView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
         collectionView.register(ViewControllerCell.self, forCellWithReuseIdentifier: "ViewControllerCell")
-        
-        let fetchOptions = PHFetchOptions()
-        fetchOptions.predicate = NSPredicate(format: "mediaType == %d", PHAssetMediaType.video.rawValue)
-        
-        let fetchResult = PHAsset.fetchAssets(with: fetchOptions)
-        var videoAssets: [PHAsset] = []
-           
-        fetchResult.enumerateObjects { (asset, _, _) in
-            videoAssets.append(asset)
-        }
-        
-        assets = videoAssets
-        
         collectionView.delegate = self
         collectionView.dataSource = self
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        if loadingTask == nil { // Initial load
+            loadingTask = Task {
+                await loadData()
+            }
+        }
+    }
+    
+    private func loadData() async {
+        loadingTask?.cancel()
+        do {
+            try await dataProvider.loadAssets()
+            await refresh()
+        } catch {
+            handleError(error)
+        }
+    }
+    
+    private func refresh() async {
+        collectionView.reloadData()
+    }
+    
+    private func handleError(_ error: Error) {
+        let alert = UIAlertController(title: "Failed to load data",
+                                      message: error.localizedDescription,
+                                      preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .cancel))
+        present(alert, animated: true)
     }
 }
 
@@ -54,18 +69,13 @@ extension ViewController: UICollectionViewDataSource, UICollectionViewDelegateFl
         
         let cell: ViewControllerCell = collectionView.dequeueReusableCell(withReuseIdentifier: "ViewControllerCell", for: indexPath) as! ViewControllerCell
         
-        let asset = assets[indexPath.row]
-        
-        let manager = PHImageManager.default()
-        let requestOptions = PHImageRequestOptions()
-        
-        requestOptions.isSynchronous = false
-        requestOptions.deliveryMode = .highQualityFormat
-        
-        let targetSize = CGSize(width: UIScreen.main.bounds.width / 3, height: UIScreen.main.bounds.width / 3)  // Размер изображения. Вы можете установить другой размер, если нужно меньшее разрешение для превью.
-        
-        manager.requestImage(for: asset, targetSize: targetSize, contentMode: .aspectFill, options: requestOptions) { (image, _) in
-            cell.image = image
+        //TODO Check
+        let asset = dataProvider.assets[indexPath.row]
+           
+        _ = dataProvider.requestImage(asset, size: targetSize) { image in
+            DispatchQueue.main.async {
+                cell.image = image
+            }
         }
         
         let formatter = DateComponentsFormatter()
@@ -79,11 +89,11 @@ extension ViewController: UICollectionViewDataSource, UICollectionViewDelegateFl
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        assets.count
+        dataProvider.assets.count
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        CGSize(width: UIScreen.main.bounds.width / 3, height: UIScreen.main.bounds.width / 3)
+        targetSize
     }
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
