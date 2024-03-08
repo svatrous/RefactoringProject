@@ -5,15 +5,15 @@
 //  Created by Pavel Ilin on 01.11.2023.
 //
 
-import UIKit
-import RxSwift
-import SnapKit
 import Accelerate
+import SnapKit
 import Photos
+import RxSwift
+import UIKit
 
-class ViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+final class ViewController: UIViewController {
     
-    var collectionView: UICollectionView!
+    private var collectionView: UICollectionView!
     
     var assets: [PHAsset] = [] {
         didSet {
@@ -26,8 +26,8 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
         
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
         view.addSubview(collectionView)
-        collectionView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
+        collectionView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
         }
         collectionView.register(ViewControllerCell.self, forCellWithReuseIdentifier: "ViewControllerCell")
         
@@ -46,12 +46,15 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
         collectionView.delegate = self
         collectionView.dataSource = self
     }
+}
 
+extension ViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
         let cell: ViewControllerCell = collectionView.dequeueReusableCell(withReuseIdentifier: "ViewControllerCell", for: indexPath) as! ViewControllerCell
         
-        let asset = self.assets[indexPath.row]
+        let asset = assets[indexPath.row]
         
         let manager = PHImageManager.default()
         let requestOptions = PHImageRequestOptions()
@@ -76,64 +79,22 @@ class ViewController: UIViewController, UICollectionViewDataSource, UICollection
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return self.assets.count
+        assets.count
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: UIScreen.main.bounds.width / 3, height: UIScreen.main.bounds.width / 3)
+        CGSize(width: UIScreen.main.bounds.width / 3, height: UIScreen.main.bounds.width / 3)
     }
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        return .zero
+        .zero
     }
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        return 0
+        0
     }
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        return 0
+        0
     }
-}
-
-class ViewControllerCell: UICollectionViewCell {
-    
-    var thumbImageView: UIImageView!
-    var durationLabel: UILabel!
-    
-    var image: UIImage! {
-        didSet {
-            thumbImageView.image = image
-        }
-    }
-    
-    var title: String! {
-        didSet {
-            durationLabel.text = title
-        }
-    }
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        
-        thumbImageView = UIImageView(frame: .zero)
-        contentView.addSubview(thumbImageView)
-        thumbImageView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-        }
-        thumbImageView.contentMode = .scaleAspectFill
-        thumbImageView.clipsToBounds = true
-        
-        durationLabel = UILabel(frame: .zero)
-        contentView.addSubview(durationLabel)
-        durationLabel.snp.makeConstraints { make in
-            make.leading.equalTo(8)
-            make.bottom.equalTo(-8)
-        }
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
 }
