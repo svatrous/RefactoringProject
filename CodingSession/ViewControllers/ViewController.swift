@@ -8,7 +8,6 @@
 import Accelerate
 import SnapKit
 import Photos
-import RxSwift
 import UIKit
 
 final class ViewController: UIViewController {
@@ -18,6 +17,14 @@ final class ViewController: UIViewController {
     private var targetSize: CGSize = .init(width: UIScreen.main.bounds.width / 3, height: UIScreen.main.bounds.width / 3)
     private var loadingTask: Task<Void, Never>?
     
+    private lazy var dateFormatter: DateComponentsFormatter = {
+        let formatter = DateComponentsFormatter()
+        formatter.allowedUnits = [.hour, .minute, .second]
+        formatter.zeroFormattingBehavior = [.pad]
+        formatter.unitsStyle = .positional
+        return formatter
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -25,7 +32,7 @@ final class ViewController: UIViewController {
         collectionView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
-        collectionView.register(ViewControllerCell.self, forCellWithReuseIdentifier: "ViewControllerCell")
+        collectionView.register(ViewControllerCell.self)
         collectionView.delegate = self
         collectionView.dataSource = self
     }
@@ -44,21 +51,21 @@ final class ViewController: UIViewController {
         loadingTask?.cancel()
         do {
             try await dataProvider.loadAssets()
-            await refresh()
+            await refreshUI()
         } catch {
             handleError(error)
         }
     }
     
-    private func refresh() async {
+    private func refreshUI() async {
         collectionView.reloadData()
     }
     
     private func handleError(_ error: Error) {
-        let alert = UIAlertController(title: "Failed to load data",
+        let alert = UIAlertController(title: String(localized: "Failed to load data", comment: "Failed to load data"),
                                       message: error.localizedDescription,
                                       preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .cancel))
+        alert.addAction(UIAlertAction(title: String(localized:"OK", comment: "OK"), style: .cancel))
         present(alert, animated: true)
     }
 }
@@ -67,23 +74,17 @@ extension ViewController: UICollectionViewDataSource, UICollectionViewDelegateFl
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
-        let cell: ViewControllerCell = collectionView.dequeueReusableCell(withReuseIdentifier: "ViewControllerCell", for: indexPath) as! ViewControllerCell
+        let cell = collectionView.dequeueReusableCell(with: ViewControllerCell.self, for: indexPath)
         
-        //TODO Check
         let asset = dataProvider.assets[indexPath.row]
            
         _ = dataProvider.requestImage(asset, size: targetSize) { image in
             DispatchQueue.main.async {
-                cell.image = image
+                cell.thumbImageView.image = image
             }
         }
         
-        let formatter = DateComponentsFormatter()
-        formatter.allowedUnits = [.hour, .minute, .second]
-        formatter.zeroFormattingBehavior = [.pad]
-        formatter.unitsStyle = .positional
-        
-        cell.title = formatter.string(from: asset.duration)
+        cell.durationLabel.text = dateFormatter.string(from: asset.duration)
         
         return cell
     }

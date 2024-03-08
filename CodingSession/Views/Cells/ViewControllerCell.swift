@@ -8,43 +8,28 @@
 import UIKit
 
 final class ViewControllerCell: UICollectionViewCell {
-    
-    var thumbImageView: UIImageView!
-    var durationLabel: UILabel!
-    
-    var image: UIImage! {
-        didSet {
-            thumbImageView.image = image
-        }
-    }
-    
-    var title: String! {
-        didSet {
-            durationLabel.text = title
-        }
-    }
+
+    private(set) lazy var thumbImageView: UIImageView = .init(frame: .zero)
+    private(set) lazy var durationLabel: UILabel = .init(frame: .zero)
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        thumbImageView = UIImageView(frame: .zero)
         contentView.addSubview(thumbImageView)
-        thumbImageView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
+        thumbImageView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
         }
         thumbImageView.contentMode = .scaleAspectFill
         thumbImageView.clipsToBounds = true
         
-        durationLabel = UILabel(frame: .zero)
         contentView.addSubview(durationLabel)
-        durationLabel.snp.makeConstraints { make in
-            make.leading.equalTo(8)
-            make.bottom.equalTo(-8)
+        durationLabel.snp.makeConstraints {
+            $0.leading.equalTo(8)
+            $0.bottom.equalTo(-8)
         }
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
 }

@@ -21,6 +21,8 @@
 		D5D547852B9B4C21002113F5 /* ImageDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D547842B9B4C21002113F5 /* ImageDataProvider.swift */; };
 		D5D547882B9B4CAC002113F5 /* PhotoImageDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D547872B9B4CAC002113F5 /* PhotoImageDataProvider.swift */; };
 		D5D5478C2B9B5602002113F5 /* ImageDataProviderError.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D5478B2B9B5602002113F5 /* ImageDataProviderError.swift */; };
+		D5D547922B9B5CAB002113F5 /* UICollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D547912B9B5CAB002113F5 /* UICollectionView.swift */; };
+		D5D547952B9B5D10002113F5 /* NSObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D547942B9B5D10002113F5 /* NSObject.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -37,6 +39,8 @@
 		D5D547842B9B4C21002113F5 /* ImageDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageDataProvider.swift; sourceTree = "<group>"; };
 		D5D547872B9B4CAC002113F5 /* PhotoImageDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoImageDataProvider.swift; sourceTree = "<group>"; };
 		D5D5478B2B9B5602002113F5 /* ImageDataProviderError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageDataProviderError.swift; sourceTree = "<group>"; };
+		D5D547912B9B5CAB002113F5 /* UICollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UICollectionView.swift; sourceTree = "<group>"; };
+		D5D547942B9B5D10002113F5 /* NSObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSObject.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -74,6 +78,7 @@
 		D3D03FB32AF27571006BD5C8 /* CodingSession */ = {
 			isa = PBXGroup;
 			children = (
+				D5D5478F2B9B5B8E002113F5 /* Extension */,
 				D5D547892B9B55EE002113F5 /* Models */,
 				D5D547832B9B4C12002113F5 /* Data */,
 				D5D547822B9B4B7A002113F5 /* ViewControllers */,
@@ -151,6 +156,31 @@
 				D5D5478B2B9B5602002113F5 /* ImageDataProviderError.swift */,
 			);
 			path = Errors;
+			sourceTree = "<group>";
+		};
+		D5D5478F2B9B5B8E002113F5 /* Extension */ = {
+			isa = PBXGroup;
+			children = (
+				D5D547932B9B5CFC002113F5 /* Foundation */,
+				D5D547902B9B5B95002113F5 /* UIKit */,
+			);
+			path = Extension;
+			sourceTree = "<group>";
+		};
+		D5D547902B9B5B95002113F5 /* UIKit */ = {
+			isa = PBXGroup;
+			children = (
+				D5D547912B9B5CAB002113F5 /* UICollectionView.swift */,
+			);
+			path = UIKit;
+			sourceTree = "<group>";
+		};
+		D5D547932B9B5CFC002113F5 /* Foundation */ = {
+			isa = PBXGroup;
+			children = (
+				D5D547942B9B5D10002113F5 /* NSObject.swift */,
+			);
+			path = Foundation;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -236,9 +266,11 @@
 				D3D03FB92AF27571006BD5C8 /* ViewController.swift in Sources */,
 				D3D03FB52AF27571006BD5C8 /* AppDelegate.swift in Sources */,
 				D5D547852B9B4C21002113F5 /* ImageDataProvider.swift in Sources */,
+				D5D547952B9B5D10002113F5 /* NSObject.swift in Sources */,
 				D5D547812B9B4A9E002113F5 /* ViewControllerCell.swift in Sources */,
 				D5D5478C2B9B5602002113F5 /* ImageDataProviderError.swift in Sources */,
 				D3D03FB72AF27571006BD5C8 /* SceneDelegate.swift in Sources */,
+				D5D547922B9B5CAB002113F5 /* UICollectionView.swift in Sources */,
 				D5D547882B9B4CAC002113F5 /* PhotoImageDataProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
