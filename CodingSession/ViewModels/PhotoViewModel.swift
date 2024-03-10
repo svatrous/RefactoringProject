@@ -14,6 +14,7 @@ final class PhotoViewModel {
     private var disposables: Set<AnyCancellable> = .init()
     private lazy var dataProvider: ImageDataProvider = PhotoImageDataProvider()
     private var loadingTask: Task<Void, Never>?
+    private var loadingImageDict: [ViewControllerCell: Task<UIImage?, Error>] = [:]
     var items: CurrentValueSubject<[PHAsset], Never> = .init([])
     var error: PassthroughSubject<Error, Never> = .init()
     var loading: CurrentValueSubject<Bool, Never> = .init(false)
@@ -54,6 +55,35 @@ final class PhotoViewModel {
     
     func requestImage(_ asset: PHAsset, size: CGSize, resultHandler: @escaping (UIImage?) -> Void) -> PHImageRequestID {
         dataProvider.requestImage(asset, size: size, resultHandler: resultHandler)
+    }
+    
+    @MainActor
+    func loadImage(for cell: ViewControllerCell, asset: PHAsset, size: CGSize) async throws -> UIImage? {
+        loadingImageDict[cell]?.cancel()
+        let task: Task<UIImage?, Error> = Task { [weak self] in
+            guard let self else { return nil }
+            
+            try Task.checkCancellation()
+            let image = await loadAssetImage(asset, size: size)
+            try Task.checkCancellation()
+            return image
+        }
+        
+        loadingImageDict[cell] = task
+        return try await task.value
+    }
+    
+    private func loadAssetImage(_ asset: PHAsset, size: CGSize) async -> UIImage? {
+        await withCheckedContinuation { [weak self] continuation in
+            guard let self else {
+                continuation.resume(with: .success(nil))
+                return
+            }
+            
+            _ = requestImage(asset, size: size) { image in
+                continuation.resume(with: .success(image))
+            }
+        }
     }
 }
 

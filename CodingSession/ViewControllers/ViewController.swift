@@ -93,7 +93,7 @@ final class ViewController: UIViewController {
     }
     
     private func handleError(_ error: Error) {
-        let alert = UIAlertController(title: String(localized: "Failed to load data", comment: "Failed to load data"),
+        let alert = UIAlertController(title: String(localized: "Failed to load data. TODO: Add user friendly text", comment: "Failed to load data"),
                                       message: error.localizedDescription,
                                       preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: String(localized:"OK", comment: "OK"), style: .cancel))
@@ -108,15 +108,22 @@ extension ViewController: UICollectionViewDataSource, UICollectionViewDelegateFl
         
         let asset = viewModel.items.value[indexPath.row]
         
-        cell.thumbImageView.image = nil
-        
-        viewModel.requestImage(asset, size: targetSize) { image in
-            cell.thumbImageView.image = image
-        }
-        
+        cell.thumbImageView.image = nil // Would be better to set fetching skeleton image instead
         cell.durationLabel.text = dateFormatter.string(from: asset.duration)
         
+        Task { [weak self, weak cell] in
+            guard let self, let cell else { return }
+            if let image = try? await viewModel.loadImage(for: cell, asset: asset, size: targetSize) {
+                await updateCellImage(cell, image: image)
+            }
+        }
+        
         return cell
+    }
+    
+    @MainActor
+    private func updateCellImage(_ cell: ViewControllerCell, image: UIImage?) async {
+        cell.thumbImageView.image = image
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {

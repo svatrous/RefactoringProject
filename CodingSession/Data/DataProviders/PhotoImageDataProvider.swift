@@ -46,8 +46,8 @@ final class PhotoImageDataProvider: NSObject, ImageDataProvider {
     
     func loadAssets() async -> [PHAsset] {
         let fetchOptions = PHFetchOptions()
-        //        fetchOptions.predicate = NSPredicate(format: "mediaType == %d", PHAssetMediaType.video.rawValue)
-        fetchOptions.predicate = NSPredicate(format: "mediaType == %d", PHAssetMediaType.image.rawValue)
+        fetchOptions.predicate = NSPredicate(format: "mediaType == %d", PHAssetMediaType.video.rawValue)
+
         
         let result = PHAsset.fetchAssets(with: fetchOptions)
         
