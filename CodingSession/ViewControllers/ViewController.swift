@@ -6,6 +6,7 @@
 //
 
 import Accelerate
+import Combine
 import SnapKit
 import Photos
 import UIKit
@@ -13,9 +14,11 @@ import UIKit
 final class ViewController: UIViewController {
     
     private lazy var collectionView: UICollectionView = .init(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
-    private lazy var dataProvider: ImageDataProvider = PhotoImageDataProvider()
+    private lazy var loadingView: UIActivityIndicatorView = .init()
+    
     private var targetSize: CGSize = .init(width: UIScreen.main.bounds.width / 3, height: UIScreen.main.bounds.width / 3)
-    private var loadingTask: Task<Void, Never>?
+    private var disposables: Set<AnyCancellable> = .init()
+    private var viewModel: PhotoViewModel = .init()
     
     private lazy var dateFormatter: DateComponentsFormatter = {
         let formatter = DateComponentsFormatter()
@@ -27,38 +30,66 @@ final class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        setupUI()
+        bindViewModel()
+    }
+    
+    private func setupUI() {
         view.addSubview(collectionView)
         collectionView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
+        
+        view.addSubview(loadingView)
+        loadingView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+        
         collectionView.register(ViewControllerCell.self)
         collectionView.delegate = self
         collectionView.dataSource = self
     }
     
+    private func bindViewModel() {
+        
+        viewModel.hasAccess
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] access in
+                guard let self, access else { return }
+                viewModel.loadData()
+            }
+            .store(in: &disposables)
+        
+        viewModel.items
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.collectionView.reloadData()
+            }
+            .store(in: &disposables)
+        
+        viewModel.loading
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] isLoading in
+                if isLoading {
+                    self?.loadingView.startAnimating()
+                } else {
+                    self?.loadingView.stopAnimating()
+                }
+            }
+            .store(in: &disposables)
+        
+        viewModel.error
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] error in
+                self?.handleError(error)
+            }
+            .store(in: &disposables)
+    }
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        if loadingTask == nil { // Initial load
-            loadingTask = Task {
-                await loadData()
-            }
-        }
-    }
-    
-    private func loadData() async {
-        loadingTask?.cancel()
-        do {
-            try await dataProvider.loadAssets()
-            await refreshUI()
-        } catch {
-            handleError(error)
-        }
-    }
-    
-    private func refreshUI() async {
-        collectionView.reloadData()
+        viewModel.grantAccess()
     }
     
     private func handleError(_ error: Error) {
@@ -71,17 +102,16 @@ final class ViewController: UIViewController {
 }
 
 extension ViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
-    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
         let cell = collectionView.dequeueReusableCell(with: ViewControllerCell.self, for: indexPath)
         
-        let asset = dataProvider.assets[indexPath.row]
-           
-        _ = dataProvider.requestImage(asset, size: targetSize) { image in
-            DispatchQueue.main.async {
-                cell.thumbImageView.image = image
-            }
+        let asset = viewModel.items.value[indexPath.row]
+        
+        cell.thumbImageView.image = nil
+        
+        viewModel.requestImage(asset, size: targetSize) { image in
+            cell.thumbImageView.image = image
         }
         
         cell.durationLabel.text = dateFormatter.string(from: asset.duration)
@@ -90,7 +120,7 @@ extension ViewController: UICollectionViewDataSource, UICollectionViewDelegateFl
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        dataProvider.assets.count
+        viewModel.items.value.count
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {

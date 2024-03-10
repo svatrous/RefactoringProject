@@ -10,8 +10,9 @@ import UIKit
 import Photos
 
 protocol ImageDataProvider {
-    var assets: [PHAsset] { get }
-    func loadAssets() async throws
+    var dataChanged: PassthroughSubject<Void, Never> { get }
+    func grantAccess() async throws
+    func loadAssets() async -> [PHAsset]
     func requestImage(_ asset: PHAsset, size: CGSize, resultHandler: @escaping (UIImage?) -> Void) -> PHImageRequestID
     func cancelLoading(requestId: PHImageRequestID)
 }

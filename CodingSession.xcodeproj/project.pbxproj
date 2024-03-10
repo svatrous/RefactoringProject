@@ -23,6 +23,7 @@
 		D5D5478C2B9B5602002113F5 /* ImageDataProviderError.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D5478B2B9B5602002113F5 /* ImageDataProviderError.swift */; };
 		D5D547922B9B5CAB002113F5 /* UICollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D547912B9B5CAB002113F5 /* UICollectionView.swift */; };
 		D5D547952B9B5D10002113F5 /* NSObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D547942B9B5D10002113F5 /* NSObject.swift */; };
+		D5D547982B9B7921002113F5 /* PhotoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D547972B9B7921002113F5 /* PhotoViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -41,6 +42,7 @@
 		D5D5478B2B9B5602002113F5 /* ImageDataProviderError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageDataProviderError.swift; sourceTree = "<group>"; };
 		D5D547912B9B5CAB002113F5 /* UICollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UICollectionView.swift; sourceTree = "<group>"; };
 		D5D547942B9B5D10002113F5 /* NSObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSObject.swift; sourceTree = "<group>"; };
+		D5D547972B9B7921002113F5 /* PhotoViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -78,6 +80,7 @@
 		D3D03FB32AF27571006BD5C8 /* CodingSession */ = {
 			isa = PBXGroup;
 			children = (
+				D5D547962B9B78DD002113F5 /* ViewModels */,
 				D5D5478F2B9B5B8E002113F5 /* Extension */,
 				D5D547892B9B55EE002113F5 /* Models */,
 				D5D547832B9B4C12002113F5 /* Data */,
@@ -183,6 +186,14 @@
 			path = Foundation;
 			sourceTree = "<group>";
 		};
+		D5D547962B9B78DD002113F5 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				D5D547972B9B7921002113F5 /* PhotoViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -272,6 +283,7 @@
 				D3D03FB72AF27571006BD5C8 /* SceneDelegate.swift in Sources */,
 				D5D547922B9B5CAB002113F5 /* UICollectionView.swift in Sources */,
 				D5D547882B9B4CAC002113F5 /* PhotoImageDataProvider.swift in Sources */,
+				D5D547982B9B7921002113F5 /* PhotoViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
